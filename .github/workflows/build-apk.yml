@@ -1,0 +1,129 @@
+name: Gerar APK Lotofacil
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar arquivos
+        uses: actions/checkout@v4
+
+      - name: Configurar Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Android
+        uses: android-actions/setup-android@v3
+
+      - name: Criar projeto Android
+        run: |
+          mkdir -p app/src/main/java/com/lotofacil/probabilidades
+          mkdir -p app/src/main/res/values
+
+          cat > settings.gradle <<'EOF'
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+
+          rootProject.name = "LotofacilProbabilidades"
+          include(":app")
+          EOF
+
+          cat > build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application' version '8.5.2' apply false
+          }
+          EOF
+
+          cat > app/build.gradle <<'EOF'
+          plugins {
+              id 'com.android.application'
+          }
+
+          android {
+              namespace 'com.lotofacil.probabilidades'
+              compileSdk 35
+
+              defaultConfig {
+                  applicationId 'com.lotofacil.probabilidades'
+                  minSdk 23
+                  targetSdk 35
+                  versionCode 1
+                  versionName '1.0'
+              }
+          }
+          EOF
+
+          cat > app/src/main/AndroidManifest.xml <<'EOF'
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:theme="@style/AppTheme"
+                  android:label="Lotofácil Probabilidades">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN" />
+                          <category android:name="android.intent.category.LAUNCHER" />
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOF
+
+          cat > app/src/main/res/values/styles.xml <<'EOF'
+          <resources>
+              <style name="AppTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:fontFamily">sans</item>
+                  <item name="android:padding">16dp</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > app/src/main/java/com/lotofacil/probabilidades/MainActivity.java <<'EOF'
+          package com.lotofacil.probabilidades;
+
+          import android.app.Activity;
+          import android.os.Bundle;
+          import android.graphics.Color;
+          import android.view.Gravity;
+          import android.widget.*;
+
+          public class MainActivity extends Activity {
+
+              @Override
+              public void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+
+                  LinearLayout layout = new LinearLayout(this);
+                  layout.setOrientation(LinearLayout.VERTICAL);
+                  layout.setPadding(30, 40, 30, 30);
+                  layout.setGravity(Gravity.CENTER_HORIZONTAL);
+
+                  TextView titulo = new TextView(this);
+                  titulo.setText("Lotofácil Probabilidades");
+                  titulo.setTextSize(26);
+                  titulo.setTextColor(Color.rgb(20, 90, 50));
+                  titulo.setGravity(Gravity.CENTER);
+
+                  TextView info = new TextView(this);
+                  info.setText("\nAnalise os números da Lotofácil\n\nEste aplicativo é educativo e trabalha com estatísticas e probabilidades
+
+                  
